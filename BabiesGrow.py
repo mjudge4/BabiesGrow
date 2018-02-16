@@ -8,7 +8,7 @@ from database_setup import Base, Offering, Tag, Comment
 
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///offerings.db')
+engine = create_engine('mysql://root:password@localhost/mydatabase')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)

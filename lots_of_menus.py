@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from database_setup import Base, Offering, Tag, Comment
 
-engine = create_engine('sqlite:///offerings.db')
+engine = create_engine('mysql://root:password@localhost/mydatabase')
 # Bind the engine to the metadata of the Base class so that the
 # declaratives can be accessed through a DBSession instance
 Base.metadata.bind = engine
