@@ -1,7 +1,7 @@
 from flask import Flask, render_template, flash, request, redirect, jsonify, url_for
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Offering, Tag, Comment
+from database_setup import Base, Offering, Tag, Comment, User
 
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 import httplib2
@@ -17,7 +17,7 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_i
 
 app = Flask(__name__)
 
-engine = create_engine('mysql://root:password@localhost/mydatabase')
+engine = create_engine('mysql://root:password@localhost/mynewdatabase')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -104,6 +104,12 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    # Check if user exists
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -151,6 +157,25 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session['email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
 @app.route('/')
 @app.route('/offerings/')
 def offering():
@@ -168,6 +193,7 @@ def offeringJSON():
 @app.route('/offerings/<int:offering_id>/')
 def offeringDetail(offering_id):
     offering = session.query(Offering).filter_by(id=offering_id).one()
+    creator = getUserInfo(offering.user_id)
     tags = session.query(Tag).filter_by(offering_id=offering_id).all()
     comments = session.query(Comment).filter_by(offering_id=offering_id).all()
     return render_template('offeringDetail.html', offering=offering, tags=tags,
@@ -185,8 +211,10 @@ def offeringDetailJSON(offering_id):
 
 @app.route('/offerings/new/', methods=['GET', 'POST'])
 def newOffering():
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
-        newOffering = Offering(title=request.form['title'], date=request.form['date'])
+        newOffering = Offering(title=request.form['title'], date=request.form['date'], user_id=login_session['user_id'])
         session.add(newOffering)
         session.commit()
         flash("New Offering added")

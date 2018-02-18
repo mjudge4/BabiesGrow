@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Offering, Tag, Comment
+from database_setup import Base, User, Offering, Tag, Comment
 
-engine = create_engine('mysql://root:password@localhost/mydatabase')
+engine = create_engine('mysql://root:password@localhost/mynewdatabase')
 # Bind the engine to the metadata of the Base class so that the
 # declaratives can be accessed through a DBSession instance
 Base.metadata.bind = engine
@@ -18,8 +18,14 @@ DBSession = sessionmaker(bind=engine)
 # session.rollback()
 session = DBSession()
 
-offering1 = Offering(title="Godchild", date="October")
 
+# Create dummy user
+User1 = User(name="Superman", email="superman@krypton.com",
+             picture='http://entertainment.ie//images_content/rectangle/620x372/christopher-reeve-superman.jpg')
+session.add(User1)
+session.commit()
+
+offering1 = Offering(user_id=1, title="Godchild", date="October")
 session.add(offering1)
 session.commit()
 
@@ -31,8 +37,17 @@ tag2 = Tag(tag_name="Novelty", offering=offering1)
 session.add(tag2)
 session.commit()
 
-comment1 = Comment(body="That looks great", offering=offering1)
+comment1 = Comment(user_id=1, body="That looks great", offering=offering1)
 session.add(comment1)
 session.commit()
 
-print "Ads added"
+
+offering2 = Offering(user_id=1, title="Super", date="October")
+session.add(offering2)
+session.commit()
+
+comment2 = Comment(user_id=1, body="Fabulous", offering=offering2)
+session.add(comment2)
+session.commit()
+
+print "Offerings added"

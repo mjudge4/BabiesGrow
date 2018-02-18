@@ -15,6 +15,14 @@ from sqlalchemy import create_engine
 # Create instance
 Base = declarative_base()
 
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False)
+    email = Column(String(250), nullable=False)
+    picture = Column(String(250))
+
 
 
 class Offering(Base):
@@ -23,6 +31,8 @@ class Offering(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(300), nullable=False)
     date = Column(String(300), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):
@@ -61,6 +71,8 @@ class Comment(Base):
     body = Column(String(1000), nullable=False)
     offering_id = Column(Integer, ForeignKey('offering.id'))
     offering = relationship('Offering')
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):
@@ -74,7 +86,7 @@ class Comment(Base):
 
 
 # Engine instance with a mysql database
-engine = create_engine('mysql://root:password@localhost/mydatabase')
+engine = create_engine('mysql://root:password@localhost/mynewdatabase')
 
 # Goes into database and creates the tables
 Base.metadata.create_all(engine)
