@@ -193,11 +193,14 @@ def offeringJSON():
 @app.route('/offerings/<int:offering_id>/')
 def offeringDetail(offering_id):
     offering = session.query(Offering).filter_by(id=offering_id).one()
-    creator = getUserInfo(offering.user_id)
+    owner = getUserInfo(offering.user_id)
     tags = session.query(Tag).filter_by(offering_id=offering_id).all()
     comments = session.query(Comment).filter_by(offering_id=offering_id).all()
-    return render_template('offeringDetail.html', offering=offering, tags=tags,
-                           comments=comments, offering_id=offering_id)
+    if 'username' not in login_session or owner.id != login_session['user_id']:
+        return render_template('publicOfferingDetail.html', offering=offering, tags=tags, comments=comments, offering_id=offering_id, owner=owner)
+    else:
+        return render_template('offeringDetail.html', offering=offering, tags=tags,
+                           comments=comments, offering_id=offering_id, owner=owner)
 
 
 
