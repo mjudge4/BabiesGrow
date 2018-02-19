@@ -112,11 +112,6 @@ def fbdisconnect():
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
-    del login_session['username']
-    del login_session['facebook_id']
-    del login_session['user_id']
-    del login_session['email']
-    del login_session['picture']
     return "You have been logged out"
 
 # Disconnect based on provider
@@ -136,8 +131,8 @@ def disconnect():
         del login_session['picture']
         del login_session['user_id']
         del login_session['provider']
-        flash("You have successfully been logged out.")
-        return redirect(url_for('showRestaurants'))
+        flash("You have logged out.")
+        return redirect(url_for('offering'))
     else:
         flash("You were not logged in")
         return redirect(url_for('offering'))
