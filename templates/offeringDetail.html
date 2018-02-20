@@ -23,14 +23,27 @@
         <h5>{{i.tag_name}}</br></h5>
         {% endfor %}
 
+        <a href='{{ url_for('editOffering', offering_id = offering.id) }}'>Edit</a>
+        </br>
+        <a href='{{ url_for('deleteOffering', offering_id = offering.id) }}'>Delete</a>
+        </br>
+
+        <form id="myForm" action="comment.php" method="post">
+            Comment: <textarea name="comment"></textarea>
+            <input type="submit" value="Submit Comment" />
+        </form>
+
         {% for j in comments %}
         <h5>{{j.body}}</br></h5>
         {% endfor %}
 	</div>
-    <a href='{{ url_for('editOffering', offering_id = offering.id) }}'>Edit</a>
-    </br>
-    <a href='{{ url_for('deleteOffering', offering_id = offering.id) }}'>Delete</a>
-    </br>
+
+<br>
+<textarea rows="4" cols="50" name="comment" form="usrform">
+Enter text here...</textarea>
+
+
+
     <a href='{{url_for('offering')}}'>Back</a>
 
 
