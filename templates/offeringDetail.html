@@ -15,7 +15,10 @@
 				<figcaption>{{ owner.name }}</figcaption>
 			</figure>
 
-
+    <a href='{{ url_for('editOffering', offering_id = offering.id) }}'>Edit</a>
+        </br>
+        <a href='{{ url_for('deleteOffering', offering_id = offering.id) }}'>Delete</a>
+        </br>
 	<div>
     <h3>{{offering.date}}</br></h3>
 
@@ -23,24 +26,21 @@
         <h5>{{i.tag_name}}</br></h5>
         {% endfor %}
 
-        <a href='{{ url_for('editOffering', offering_id = offering.id) }}'>Edit</a>
-        </br>
-        <a href='{{ url_for('deleteOffering', offering_id = offering.id) }}'>Delete</a>
-        </br>
 
-        <form id="myForm" action="comment.php" method="post">
-            Comment: <textarea name="comment"></textarea>
+        Comments:
+
+        {% for j in comments %}
+            {% for x in commenter %}
+                <h4>{{ x.name}}</h4>
+        <h5>{{j.body}}</br></h5>
+             {% endfor %}
+        {% endfor %}
+
+    <form id="myForm" action="#" method="post">
+            Comment: <textarea name="body"></textarea>
             <input type="submit" value="Submit Comment" />
         </form>
 
-        {% for j in comments %}
-        <h5>{{j.body}}</br></h5>
-        {% endfor %}
-	</div>
-
-<br>
-<textarea rows="4" cols="50" name="comment" form="usrform">
-Enter text here...</textarea>
 
 
 

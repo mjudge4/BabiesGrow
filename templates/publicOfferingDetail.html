@@ -24,10 +24,24 @@
         <h5>{{i.tag_name}}</br></h5>
         {% endfor %}
 
-        {% for j in comments %}
-        <h5>{{j.body}}</br></h5>
-        {% endfor %}
 	</div>
+
+    <div>
+        Comments:
+
+        {% for j in comments %}
+
+                <h5>{{j.body}}</br></h5>
+            <h4>{{ j.user.name}}</h4>
+
+
+        {% endfor %}
+    </div>
+
+    <form id="myForm" action="#" method="post">
+            <textarea name="body"></textarea>
+            <input type="submit" value="Submit Comment" />
+        </form>
 
     </br>
     <a href='{{url_for('offering')}}'>Back</a>
