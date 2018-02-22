@@ -2,26 +2,26 @@ from flask import Flask, render_template, flash, request, redirect, jsonify, url
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Offering, Tag, Comment, User
-
+import string
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 import httplib2
+from flask import session as login_session
+import random
 import json
 from flask import make_response
 import requests
 
-from flask import session as login_session
-import random
-import string
-
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
-
+APPLICATION_NAME = "BabiesGrow"
 app = Flask(__name__)
+
 
 engine = create_engine('mysql://root:password@localhost/mynewdatabase')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
 
 
 # @reference http://https://classroom.udacity.com/courses/ud330/lessons/3967218625/concepts/39636486150923
@@ -333,6 +333,8 @@ def newOffering():
         return redirect(url_for('offering'))
     else:
         return render_template('newoffering.html')
+
+
 
 @app.route('/offerings/<int:offering_id>/', methods=['GET', 'POST'])
 def newComment(offering_id):
