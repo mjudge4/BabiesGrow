@@ -23,6 +23,24 @@ class User(Base):
     email = Column(String(250), nullable=False)
     picture = Column(String(250))
 
+class File(Base):
+    __tablename__ = 'file'
+    id = Column(Integer, primary_key=True)
+    image = Column(String(250))
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+    offering_id = Column(Integer, ForeignKey('offering.id'))
+    offering = relationship('Offering')
+
+    @property
+    def serialize(self):
+        # Return objects in serializable form
+        return {
+            'id': self.id,
+            'image': self.image,
+
+        }
+
 
 
 class Offering(Base):
