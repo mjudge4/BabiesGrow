@@ -14,7 +14,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 
-UPLOAD_FOLDER = '/static/uploads'
+UPLOAD_FOLDER = 'C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
@@ -65,8 +65,8 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded_file',
                                     filename=filename))
-    else:
-        render_template('uploads.html')
+
+    return render_template('uploads.html')
 
 
 @app.route('/uploads/<filename>')
