@@ -45,7 +45,7 @@ def upload_file(offering_id):
         session.commit()
         return redirect(url_for('offering'))
     else:
-        return render_template('uploadfile.html')"""
+        return render_template('uploads.html')"""
 
 @app.route('/uploads/', methods=['GET', 'POST'])
 def upload_file():
