@@ -14,6 +14,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 
+
 UPLOAD_FOLDER = 'C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
@@ -34,20 +35,33 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-"""@app.route('/offerings/new/<int:offering_id>/', methods=['GET', 'POST'])
+@app.route('/offerings/new/<int:offering_id>/', methods=['GET', 'POST'])
 def upload_file(offering_id):
     if 'username' not in login_session:
         return redirect('/login')
-    offering_id = session.query(Offering).filter_by(id=offering_id).one()
+    offering = session.query(Offering).filter_by(id=offering_id).one()
     if request.method == 'POST':
-        newFile = File(image=request.form['image'], offering_id=offering_id, user_id=login_session['user_id'])
-        session.add(newFile)
-        session.commit()
-        return redirect(url_for('offering'))
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            newFile = File(image=filename, offering_id=offering_id, user_id=login_session['user_id'])
+            session.add(newFile)
+            session.commit()
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
     else:
-        return render_template('uploads.html')"""
+        return render_template('uploads.html')
 
-@app.route('/uploads/', methods=['GET', 'POST'])
+''''@app.route('/uploads/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
@@ -66,7 +80,7 @@ def upload_file():
             return redirect(url_for('uploaded_file',
                                     filename=filename))
 
-    return render_template('uploads.html')
+    return render_template('uploads.html')'''
 
 
 @app.route('/uploads/<filename>')
