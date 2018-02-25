@@ -68,7 +68,7 @@ class Tag(Base):
     __tablename__ = 'tag'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(300), nullable=False)
+    tag_name = Column(String(300), nullable=False)
     offering_id = Column(Integer, ForeignKey('offering.id'))
     offering = relationship(Offering)
 
