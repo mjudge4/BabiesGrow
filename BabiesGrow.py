@@ -67,6 +67,38 @@ def upload_file(offering_id):
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
+    """
+    import io
+    import os
+
+    # Imports the Google Cloud client library
+    # [START migration_import]
+    from google.cloud import vision
+    from google.cloud.vision import types
+    # [END migration_import]
+    # Instantiates a client
+    # [START migration_client]
+    client = vision.ImageAnnotatorClient()
+    # [END migration_client]
+    # The name of the image file to annotate
+    filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+    # Loads the image into memory
+    with io.open(filename, 'rb') as image_file:
+        content = image_file.read()
+
+    image = types.Image(content=content)
+
+    # Performs label detection on the image file
+    response = client.label_detection(image=image)
+    labels = response.label_annotations
+    print('Labels:')
+    for label in labels:
+        print(label.description)
+    # [END vision_quickstart]
+    #return render_template('uploadedfile.html', labels=labels)"""
+
+
 
 # @reference http://https://classroom.udacity.com/courses/ud330/lessons/3967218625/concepts/39636486150923
 
