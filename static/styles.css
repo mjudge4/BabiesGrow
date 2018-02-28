@@ -1,0 +1,36 @@
+banner.main {
+	height: 150px;
+	background: url("/static/top-banner.jpg");
+	background-position: right;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.banner.menu {
+	height: 150px;
+	background-color: #E1E17F;
+}
+.banner.profile {
+	height: 150px;
+	background-color: #A6E8EB;
+}
+.banner h1 {
+	margin: 45px 0;
+}
+
+.owner {
+	padding-right: 20px;
+	margin-top: -20px;
+	text-align: right;
+	float:right;
+}
+.owner img {
+	width: 5px;
+	border-radius: 50%;
+    float:right;
+}
+.owner figcaption {
+	font-size: 14px;
+	color: #7B7573;
+	font-weight: 400;
+	margin-top: -20px;
+}

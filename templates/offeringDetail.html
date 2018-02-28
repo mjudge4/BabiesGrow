@@ -9,18 +9,28 @@
          </ul>
         {% endif %}
     {% endwith %}
-  <h1>{{offering.title}}</h1>
+
+    <div class="row banner menu">
     <figure class="owner">
 				<img src="{{ owner.picture}}">
 				<figcaption>{{ owner.name }}</figcaption>
 			</figure>
+    </div>
 
+    <h1>{{offering.title}}</h1>
     <a href='{{ url_for('editOffering', offering_id = offering.id) }}'>Edit</a>
         </br>
         <a href='{{ url_for('deleteOffering', offering_id = offering.id) }}'>Delete</a>
         </br>
 	<div>
     <h3>{{offering.date}}</br></h3>
+
+
+        Images:
+        {% for x in files %}
+        <img src ="{{url_for('uploadedfile', filename = x.image)}}"/></br></h5>
+        {% endfor %}
+
 
         {% for i in tags %}
         <h5>{{i.tag_name}}</br></h5>

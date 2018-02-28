@@ -6,8 +6,12 @@
 </head>
 <body>
     Labels:
-    {% for label in labels %}
-        {{ label.description }}
+</br>
+    {% for tag in tags %}
+        {{ tag.description }}</br>
     {% endfor %}
+
+<a href="{{url_for('offeringDetail', offering_id = offering_id)}}"> <h3>View Offering</br></a>
 </body>
 </html>
+

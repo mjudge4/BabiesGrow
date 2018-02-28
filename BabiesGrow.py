@@ -16,7 +16,7 @@ from flask import send_from_directory
 
 
 UPLOAD_FOLDER = 'C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'MOV'])
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "BabiesGrow"
@@ -56,18 +56,16 @@ def upload_file(offering_id):
             newFile = File(image=filename, offering_id=offering_id, user_id=login_session['user_id'])
             session.add(newFile)
             session.commit()
-            return redirect(url_for('uploaded_file',
+            return redirect(url_for('uploaded_file', offering_id=offering_id,
                                     filename=filename))
     else:
         return render_template('uploads.html')
 
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename)
-    """
+@app.route('/offerings/new/<int:offering_id>/<filename>/')
+def uploaded_file(offering_id, filename):
+
     import io
     import os
 
@@ -91,12 +89,37 @@ def uploaded_file(filename):
 
     # Performs label detection on the image file
     response = client.label_detection(image=image)
-    labels = response.label_annotations
-    print('Labels:')
-    for label in labels:
-        print(label.description)
+    tags = response.label_annotations
+
+    offering = session.query(Offering).filter_by(id=offering_id).one()
+    for tag in tags:
+        if tag.description != Tag.tag_name:
+            newTag = Tag(tag_name=tag.description, offering_id=offering.id)
+            session.add(newTag)
+            session.commit()
+
     # [END vision_quickstart]
-    #return render_template('uploadedfile.html', labels=labels)"""
+    return render_template('uploadedfile.html', tags=tags, offering_id=offering_id)
+
+
+@app.route('/uploads/<filename>')
+def uploadedfile(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],
+                               filename)
+
+
+@app.route('/offerings/new/<int:offering_id>/<filename>/<int:tag_id>/', methods=['GET', 'POST'])
+def addTag(offering_id, tag_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    offering = session.query(Offering).filter_by(id=offering_id).one()
+    tag = session.query(Tag).filter_by(id=tag_id).one()
+    if request.method == 'POST':
+        newTag = Tag(tag_id=tag.id, offering_id=offering.id)
+        session.add(newTag)
+        flash('Tag Added')
+        session.commit()
+        return redirect(url_for('offeringDetail', offering_id=offering_id))
 
 
 
@@ -378,14 +401,15 @@ def offeringJSON():
 def offeringDetail(offering_id):
     offering = session.query(Offering).filter_by(id=offering_id).one()
     owner = getUserInfo(offering.user_id)
+    files = session.query(File).filter_by(offering_id=offering_id).all()
     tags = session.query(Tag).filter_by(offering_id=offering_id).all()
     comments = session.query(Comment).filter_by(offering_id=offering_id).all()
     commenter = getUsers(Comment.user_id)
     if 'username' not in login_session or owner.id != login_session['user_id']:
-        return render_template('publicOfferingDetail.html', offering=offering, tags=tags, comments=comments, offering_id=offering_id, owner=owner, commenter=commenter)
+        return render_template('publicOfferingDetail.html', offering=offering, files=files, tags=tags, comments=comments, offering_id=offering_id, owner=owner, commenter=commenter)
     else:
         return render_template('offeringDetail.html', offering=offering, tags=tags,
-                           comments=comments, offering_id=offering_id, owner=owner, commenter=commenter)
+                           comments=comments, offering_id=offering_id, files=files, owner=owner, commenter=commenter)
 
 
 
@@ -424,17 +448,6 @@ def newComment(offering_id):
         session.commit()
         return redirect(url_for('offeringDetail', offering_id=offering_id))
 
-@app.route('/offerings/<int:offering_id>/', methods=['GET', 'POST'])
-def newTag(offering_id):
-    if 'username' not in login_session:
-        return redirect('/login')
-    offering = session.query(Offering).filter_by(id=offering_id).one()
-    if request.method == 'POST':
-        newTag = Tag(tag_name=request.form['tag_name'], offering_id=offering.id)
-        session.add(newTag)
-        flash('Tag Added')
-        session.commit()
-        return redirect(url_for('offeringDetail', offering_id=offering_id))
 
 
 @app.route('/offerings/<int:offering_id>/edit/', methods=['GET', 'POST'])
@@ -463,7 +476,7 @@ def deleteOffering(offering_id):
         flash("Offering deleted")
         return redirect(url_for('offering', offering_id=offering_id))
     else:
-        return render_template('deleteoffering.html', offering = offeringToDelete)
+        return render_template('deleteoffering.html', offering=offeringToDelete)
 
 
 

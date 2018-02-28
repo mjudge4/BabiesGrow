@@ -1,0 +1,8 @@
+Flask
+Flask-SQLAlchemy
+google-cloud
+httplib2
+json
+requests
+random
+string

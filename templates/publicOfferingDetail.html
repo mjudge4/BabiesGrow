@@ -19,6 +19,11 @@
 
 	<div>
     <h3>{{offering.date}}</br></h3>
+        Images:
+        {% for x in files %}
+        <img src ="C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads\{{x.image}}"/></br></h5>
+        {% endfor %}
+
 
         {% for i in tags %}
         <h5>{{i.tag_name}}</br></h5>
