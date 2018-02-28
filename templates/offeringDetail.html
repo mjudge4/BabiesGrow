@@ -37,11 +37,13 @@
         <img src ="{{url_for('uploadedfile', filename = x.image)}}"/></br></h5>
         {% endfor %}
 
-        <button class = "button">
+
         {% for i in tags %}
-        <span>{{i.tag_name}}</span>
-        {% endfor %}
+        <button class = "button">
+        <a href="{{ url_for('deleteTag', offering_id = offering.id, tag_id=i.id) }}"<span>{{i.tag_name}}</span></a>
         </button>
+        {% endfor %}
+
         <a href='{{url_for('newTag', offering_id = offering.id)}}'>Add New Tag</a>
 
 

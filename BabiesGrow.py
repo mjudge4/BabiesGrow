@@ -18,7 +18,7 @@ import datetime
 
 
 UPLOAD_FOLDER = 'C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'MOV'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "BabiesGrow"
@@ -108,21 +108,6 @@ def uploaded_file(offering_id, filename):
 def uploadedfile(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
-
-
-@app.route('/offerings/new/<int:offering_id>/<filename>/<int:tag_id>/', methods=['GET', 'POST'])
-def addTag(offering_id, tag_id):
-    if 'username' not in login_session:
-        return redirect('/login')
-    offering = session.query(Offering).filter_by(id=offering_id).one()
-    tag = session.query(Tag).filter_by(id=tag_id).one()
-    if request.method == 'POST':
-        newTag = Tag(tag_id=tag.id, offering_id=offering.id)
-        session.add(newTag)
-        flash('Tag Added')
-        session.commit()
-        return redirect(url_for('offeringDetail', offering_id=offering_id))
-
 
 
 # @reference http://https://classroom.udacity.com/courses/ud330/lessons/3967218625/concepts/39636486150923
@@ -435,6 +420,22 @@ def newTag(offering_id):
         return redirect(url_for('offeringDetail', offering_id=offering_id))
     else:
         return render_template('newtag.html')
+
+@app.route('/offerings/<int:offering_id>/<int:tag_id>/delete/', methods=['GET', 'POST'])
+def deleteTag(offering_id, tag_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    offering = session.query(Offering).filter_by(id=offering_id).one()
+    tagToDelete = session.query(Tag).filter_by(id=tag_id).one()
+    if offering.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to remove this Tag.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        session.delete(tagToDelete)
+        session.commit()
+        flash("Tag deleted")
+        return redirect(url_for('offeringDetail', offering_id=offering_id))
+    else:
+        return render_template('deletetag.html', tag=tagToDelete, offering_id=offering_id)
 
 @app.route('/offerings/new/', methods=['GET', 'POST'])
 def newOffering():
