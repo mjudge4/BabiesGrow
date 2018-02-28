@@ -13,6 +13,8 @@ import requests
 import os
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
+import datetime
+
 
 
 UPLOAD_FOLDER = 'C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads'
@@ -420,13 +422,26 @@ def offeringDetailJSON(offering_id):
     comments = session.query(Comment).filter_by(offering_id=offering_id).all()
     return jsonify(offering=offering.serialize, Tags=[i.serialize for i in tags], Comment=[j.serialize for j in comments])
 
+@app.route('/offerings/<int:offering_id>/tag/new/', methods=['GET', 'POST'])
+def newTag(offering_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    offering = session.query(Offering).filter_by(id=offering_id).one()
+    if request.method == 'POST':
+        newTag = Tag(tag_name=request.form['tag_name'].lower(), offering_id=offering.id)
+        session.add(newTag)
+        flash('Tag Added')
+        session.commit()
+        return redirect(url_for('offeringDetail', offering_id=offering_id))
+    else:
+        return render_template('newtag.html')
 
 @app.route('/offerings/new/', methods=['GET', 'POST'])
 def newOffering():
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        newOffering = Offering(title=request.form['title'], date=request.form['date'], user_id=login_session['user_id'])
+        newOffering = Offering(title=request.form['title'], date=datetime.date.today(), user_id=login_session['user_id'])
         session.add(newOffering)
         session.commit()
         flash("New Offering added")

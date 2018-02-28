@@ -1,4 +1,10 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <title>Offering Detail</title>
+</head>
 <body>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -18,7 +24,7 @@
 
 
 	<div>
-    <h3>{{offering.date}}</br></h3>
+    <h3>Date Added: {{offering.date}}</br></h3>
         Images:
         {% for x in files %}
         <img src ="C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads\{{x.image}}"/></br></h5>
@@ -28,6 +34,7 @@
         {% for i in tags %}
         <h5>{{i.tag_name}}</br></h5>
         {% endfor %}
+
 
 	</div>
 
