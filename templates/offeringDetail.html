@@ -34,7 +34,8 @@
 
         Images:
         {% for x in files %}
-        <img src ="{{url_for('uploadedfile', filename = x.image)}}"/></br></h5>
+        <img src ="{{ x.image}}"/></br></h5>
+            <a href='{{ url_for('detect_labels_uri', offering_id = offering.id, uri = x.image) }}'>Edit</a>
         {% endfor %}
 
 

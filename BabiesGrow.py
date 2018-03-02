@@ -14,17 +14,22 @@ import os
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 import datetime
+from google.cloud import storage
+from werkzeug.exceptions import BadRequest
+import six
+from google.cloud import vision
+from google.cloud.vision import types
 
-
-
-UPLOAD_FOLDER = 'C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+PROJECT_ID = 'pycharm-194111'
+CLOUD_STORAGE_BUCKET = 'pycharm-194111.appspot.com'
+MAX_CONTENT_LENGTH = 8 * 1024 * 1024
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "BabiesGrow"
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 
 engine = create_engine('mysql://root:password@localhost/mynewdatabase')
@@ -33,67 +38,150 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def _get_storage_client():
+    return storage.Client(
+        project='pycharm-194111')
+
+
+
+
+
+def _check_extension(filename, allowed_extensions):
+    if ('.' not in filename or
+            filename.split('.').pop() not in allowed_extensions):
+        raise BadRequest(
+            "{0} has an invalid name or extension".format(filename))
+
+
+
+def _safe_filename(filename):
+    """
+    Generates a safe filename that is unlikely to collide with existing objects
+    in Google Cloud Storage.
+
+    ``filename.ext`` is transformed into ``filename-YYYY-MM-DD-HHMMSS.ext``
+    """
+    filename = secure_filename(filename)
+    date = datetime.datetime.utcnow().strftime("%Y-%m-%d-%H%M%S")
+    basename, extension = filename.rsplit('.', 1)
+    return "{0}-{1}.{2}".format(basename, date, extension)
+
+
+
+# [START upload_image_file]
+def upload_image_file(file):
+    """
+    Upload the user-uploaded file to Google Cloud Storage and retrieve its
+    publicly-accessible URL.
+    """
+    if not file:
+        return None
+
+    public_url = upload_file(
+        file.read(),
+        file.filename,
+        file.content_type
+    )
+
+    app.logger.info(
+        "Uploaded file %s as %s.", file.filename, public_url)
+
+    return public_url
+# [END upload_image_file]
+
+# [START upload_file]
+def upload_file(file_stream, filename, content_type):
+    """
+    Uploads a file to a given Cloud Storage bucket and returns the public url
+    to the new object.
+    """
+    #_check_extension(filename, 'ALLOWED_EXTENSIONS')
+    filename = _safe_filename(filename)
+
+    client = _get_storage_client()
+    bucket = client.bucket('pycharm-194111.appspot.com')
+    blob = bucket.blob(filename)
+
+    blob.upload_from_string(
+        file_stream,
+        content_type=content_type)
+
+    url = blob.public_url
+
+    if isinstance(url, six.binary_type):
+        url = url.decode('utf-8')
+
+    return url
+# [END upload_file]
+
+
+@app.route('/offerings/new/', methods=['GET', 'POST'])
+def newOffering():
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        newOffering = Offering(title=request.form['title'], date=datetime.date.today(), user_id=login_session['user_id'])
+        session.add(newOffering)
+        session.commit()
+        flash("New Offering added")
+        return redirect(url_for('load_file', offering_id=newOffering.id))
+    else:
+        return render_template('newoffering.html')
 
 @app.route('/offerings/new/<int:offering_id>/', methods=['GET', 'POST'])
-def upload_file(offering_id):
+def load_file(offering_id):
     if 'username' not in login_session:
         return redirect('/login')
     offering = session.query(Offering).filter_by(id=offering_id).one()
     if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # if user does not select file, browser also
-        # submit a empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            newFile = File(image=filename, offering_id=offering_id, user_id=login_session['user_id'])
-            session.add(newFile)
-            session.commit()
-            return redirect(url_for('uploaded_file', offering_id=offering_id,
-                                    filename=filename))
+        image_url = upload_image_file(request.files.get('file'))
+        newFile = File(image=image_url, offering_id=offering_id, user_id=login_session['user_id'])
+        session.add(newFile)
+        session.commit()
+        return redirect(url_for('offeringDetail', offering_id=offering_id))
     else:
         return render_template('uploads.html')
 
 
+# [START def_detect_labels_uri]
+def detect_labels_uri(offering_id, uri):
+    """Detects labels in the file located in Google Cloud Storage or on the
+    Web."""
+    client = vision.ImageAnnotatorClient()
+    image = types.Image()
+    image.source.image_uri = uri
 
-@app.route('/offerings/new/<int:offering_id>/<filename>/')
-def uploaded_file(offering_id, filename):
+    response = client.label_detection(image=image)
+    tags = response.label_annotations
+    offering = session.query(Offering).filter_by(id=offering_id).one()
+
+
+    for tag in tags:
+        if tag.description != Tag.tag_name:
+            newTag = Tag(tag_name=tag.description, offering_id=offering.id)
+            session.add(newTag)
+            session.commit()
+    return redirect(url_for('offeringDetail', offering_id=offering_id))
+# [END def_detect_labels_uri]
+
+
+@app.route('/offerings/new/<int:offering_id>/upload/<int:file_id>')
+def uploaded_file(offering_id, file_id):
 
     import io
     import os
-
+    offering = session.query(Offering).filter_by(id=offering_id).one()
+    file = session.query(File).filter_by(id=file_id).one()
     # Imports the Google Cloud client library
     # [START migration_import]
-    from google.cloud import vision
-    from google.cloud.vision import types
-    # [END migration_import]
-    # Instantiates a client
-    # [START migration_client]
+
     client = vision.ImageAnnotatorClient()
-    # [END migration_client]
-    # The name of the image file to annotate
-    filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    image_url = file.image
 
-    # Loads the image into memory
-    with io.open(filename, 'rb') as image_file:
-        content = image_file.read()
-
-    image = types.Image(content=content)
-
-    # Performs label detection on the image file
-    response = client.label_detection(image=image)
+    response = client.label_detection(image_url=image_url)
     tags = response.label_annotations
 
-    offering = session.query(Offering).filter_by(id=offering_id).one()
     for tag in tags:
         if tag.description != Tag.tag_name:
             newTag = Tag(tag_name=tag.description, offering_id=offering.id)
@@ -437,18 +525,7 @@ def deleteTag(offering_id, tag_id):
     else:
         return render_template('deletetag.html', tag=tagToDelete, offering_id=offering_id)
 
-@app.route('/offerings/new/', methods=['GET', 'POST'])
-def newOffering():
-    if 'username' not in login_session:
-        return redirect('/login')
-    if request.method == 'POST':
-        newOffering = Offering(title=request.form['title'], date=datetime.date.today(), user_id=login_session['user_id'])
-        session.add(newOffering)
-        session.commit()
-        flash("New Offering added")
-        return redirect(url_for('upload_file', offering_id=newOffering.id))
-    else:
-        return render_template('newoffering.html')
+
 
 
 
