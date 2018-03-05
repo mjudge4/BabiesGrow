@@ -1,5 +1,5 @@
 @echo off
-set "VIRTUAL_ENV=C:\Users\mjudg\pycharmprojects\babiesgrow\env"
+set "VIRTUAL_ENV=C:\Users\mjudg\PycharmProjects\BabiesGrow\env"
 
 if defined _OLD_VIRTUAL_PROMPT (
     set "PROMPT=%_OLD_VIRTUAL_PROMPT%"

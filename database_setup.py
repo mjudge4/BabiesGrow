@@ -12,6 +12,13 @@ from sqlalchemy.orm import relationship
 
 from sqlalchemy import create_engine
 
+DATA_BACKEND = 'cloudsql'
+CLOUDSQL_USER = 'arc'
+CLOUDSQL_PASSWORD = 'password'
+CLOUDSQL_DATABASE = 'offerings'
+
+CLOUDSQL_CONNECTION_NAME = 'pycharm-194111:us-central1:babiesgrow'
+
 # Create instance
 Base = declarative_base()
 
@@ -104,7 +111,7 @@ class Comment(Base):
 
 
 # Engine instance with a mysql database
-engine = create_engine('mysql://root:password@localhost/mynewdatabase')
+engine = create_engine('mysql+pymysql://marc:password@127.0.0.1:8000/offerings')
 
 # Goes into database and creates the tables
 Base.metadata.create_all(engine)
