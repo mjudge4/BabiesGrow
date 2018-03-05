@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
     <title>Offering Detail</title>
 </head>
 <body>
+<div class="row banner menu">
+<figure class="owner">
+				<img src="{{ owner.picture}}">
+				<figcaption>{{ owner.name }}</figcaption>
+</figure>
+</div>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
          <ul>
@@ -16,53 +23,64 @@
         {% endif %}
     {% endwith %}
 
-    <div class="row banner menu">
-    <figure class="owner">
-				<img src="{{ owner.picture}}">
-				<figcaption>{{ owner.name }}</figcaption>
-			</figure>
-    </div>
+
+
+<main>
+  <div class = detail>
 
     <h1>{{offering.title}}</h1>
     <a href='{{ url_for('editOffering', offering_id = offering.id) }}'>Edit</a>
         </br>
         <a href='{{ url_for('deleteOffering', offering_id = offering.id) }}'>Delete</a>
         </br>
-	<div>
-    <h3>{{offering.date}}</br></h3>
+        <h3>{{offering.date}}</br></h3>
+
+	</div>
 
 
         Images:
         {% for x in files %}
         <img src ="{{ x.image}}"/></br></h5>
-            <a href='{{ url_for('detect_labels_uri', offering_id = offering.id, uri = x.image) }}'>Edit</a>
+
         {% endfor %}
 
 
         {% for i in tags %}
         <button class = "button">
-        <a href="{{ url_for('deleteTag', offering_id = offering.id, tag_id=i.id) }}"<span>{{i.tag_name}}</span></a>
+
+           <a href="{{ url_for('deleteTag', offering_id = offering.id, tag_id=i.id) }}"<span>{{i.tag_name}}</span></a>
+
         </button>
         {% endfor %}
 
         <a href='{{url_for('newTag', offering_id = offering.id)}}'>Add New Tag</a>
 
+        </br>
+        </br>
+        </br>
 
 
+        <div class = comments>
 
-        Comments:
+        <h4>Comments:</h4>
 
         {% for j in comments %}
-            {% for x in commenter %}
-                <h4>{{ x.name}}</h4>
-        <h5>{{j.body}}</br></h5>
-             {% endfor %}
+            <h5>{{j.body}}</br></h5>
+            <h4>{{ j.user.name}}</h4>
         {% endfor %}
+        </br>
+        </div>
 
-    <form id="myForm" action="#" method="post">
-            Comment: <textarea name="body"></textarea>
+        <div class="comment_box">
+        <form id="myForm" action="#" method="post">
+            Comment:
+            </br>
+            <textarea name="body"></textarea>
+            </br>
             <input type="submit" value="Submit Comment" />
         </form>
+        </div>
+</main>
 
 
 

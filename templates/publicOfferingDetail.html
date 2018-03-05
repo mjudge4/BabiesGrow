@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
     <meta charset="UTF-8">
     <title>Offering Detail</title>
 </head>
 <body>
+<div class="row banner menu">
+<figure class="owner">
+    <img src="{{ owner.picture}}">
+    <figcaption>{{ owner.name }}</figcaption>
+</figure>
+</div>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
          <ul>
@@ -15,49 +22,57 @@
          </ul>
         {% endif %}
     {% endwith %}
+<main>
+  <div class = detail>
   <h1>{{offering.title}}</h1>
-    <figure class="owner">
-				<img src="{{ owner.picture}}">
-				<figcaption>{{ owner.name }}</figcaption>
-			</figure>
 
 
 
-	<div>
     <h3>Date Added: {{offering.date}}</br></h3>
+  </div>
         Images:
         {% for x in files %}
-        <img src ="C:\Users\mjudg\PycharmProjects\BabiesGrow\static\uploads\{{x.image}}"/></br></h5>
+        <img src ="{{ x.image}}"/></br></h5>
         {% endfor %}
 
-
+        <button class = "button">
         {% for i in tags %}
-        <h5>{{i.tag_name}}</br></h5>
+            <h5><span>{{i.tag_name}}</span></br></h5>
         {% endfor %}
+        </button>
 
 
 	</div>
 
-    <div>
-        Comments:
+    </br>
+        </br>
+        </br>
+
+    <div class = comments>
+
+        <h4>Comments:</h4>
 
         {% for j in comments %}
-
-                <h5>{{j.body}}</br></h5>
+            <h5>{{j.body}}</br></h5>
             <h4>{{ j.user.name}}</h4>
-
-
         {% endfor %}
+    </br>
     </div>
 
-    <form id="myForm" action="#" method="post">
+    <div class="comment_box">
+        <form id="myForm" action="#" method="post">
+            Comment:
+            </br>
             <textarea name="body"></textarea>
+            </br>
             <input type="submit" value="Submit Comment" />
         </form>
+    </div>
+
 
     </br>
     <a href='{{url_for('offering')}}'>Back</a>
-
+</main>
 
 
 </body>

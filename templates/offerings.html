@@ -1,8 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+    <title>BabiesGrow</title>
+</head>
+
 {% include "header.html" %}
 <body>
-
+<header class="header">
+      <div class="header__inner">
+        <img class="header__logo" src="https://storage.googleapis.com/pycharm-194111.appspot.com/pexels-photo-207231.jpeg" alt="green grass">
+        <h1 class="header__title">
+          BabiesGrow
+        </h1>
+      </div>
+    </header>
 
     {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -14,13 +28,22 @@
         {% endif %}
     {% endwith %}
 
+
+    <main>
     <a href = '{{url_for('newOffering') }}'>Add New Offering</a>
 
-    {% for offering in offerings %}
-        <a href="{{url_for('offeringDetail', offering_id = offering.id)}}"> <h3>{{offering.title}}</br></a>
-        <p>{{offering.date}}</br></p>
-
+    <div class = offering_container>
+    {% for i in offerings %}
+        <div class = offering_list>
+        <a href="{{url_for('offeringDetail', offering_id = i.id)}}"> <h3>{{i.title}}</h3></br></a>
+       <p>{{i.date}}</p>
+        </div>
 	{% endfor %}
+    </div>
+
+
+    </main>
+
 
 </body>
 </html>
