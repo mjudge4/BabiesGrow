@@ -1,10 +1,12 @@
 
+
 img, embed, object, video {
     max-width: 100%;
 }
 
 body {
-    background-color: lightgreen;
+    background-color: white;
+    font-family: sans-serif;
 }
 
 body, html {
@@ -34,6 +36,7 @@ ul {
   transition: min-height 0.3s;
   margin-left: auto;
   margin-right: auto;
+
 }
 
 .header__inner {
@@ -50,11 +53,12 @@ ul {
 }
 
 .header__title {
-  font-weight: 300;
+  font-weight: 500;
   font-size: 4em;
   margin: 0.5em 0.25em;
   display: inline-block;
   color: #212121;
+  font-family: "Courier New";
 }
 
 .owner {
