@@ -470,8 +470,9 @@ def getUserID(email):
 @app.route('/offerings/')
 def offering():
     offerings = session.query(Offering).all()
+    files = session.query(File).all()
 
-    return render_template('offerings.html', offerings=offerings)
+    return render_template('offerings.html', offerings=offerings, files=files)
 
 @app.route('/offerings/JSON')
 def offeringJSON():

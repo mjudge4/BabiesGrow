@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', filename='js/offerings.js') }}">
-    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/offerings.js') }}"></script>
     <title>BabiesGrow</title>
 </head>
 
@@ -14,7 +13,6 @@
 <body>
 <header class="header">
       <div class="header__inner">
-        <img class="header__logo" src="https://storage.googleapis.com/pycharm-194111.appspot.com/pexels-photo-207231.jpeg" alt="green grass">
         <h1 class="header__title">
           BabiesGrow
         </h1>
@@ -33,15 +31,22 @@
 
 
     <main>
+    <button class = "button">
     <a href = '{{url_for('newOffering') }}'>Add New Offering</a>
+    </button>
 
     <div class = offering_container>
     {% for i in offerings %}
         <div class = offering_list>
-        <a href="{{url_for('offeringDetail', offering_id = i.id)}}"> <h3>{{i.title}}</h3></br></a>
-       <p>{{i.date}}</p>
+        <a href="{{url_for('offeringDetail', offering_id = i.id)}}">
+            <h3>{{i.title}}</h3></br></a>
+        <p>{{i.date}}</p>
+        {% if i.id == files.offering_id %}
+        <img src ="{{ files.image}}"/>
+        {% endif %}
         </div>
-	{% endfor %}
+    {% endfor %}
+
     </div>
 
 

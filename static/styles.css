@@ -1,3 +1,4 @@
+
 img, embed, object, video {
     max-width: 100%;
 }
@@ -81,6 +82,9 @@ main {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
+  font-size: 18px;
+  line-height: 1.2em;
+  padding: 1em;
 }
 
 main .detail {
@@ -102,29 +106,35 @@ main .detail {
     display: grid;
     width: 100%;
     padding: 1em;
+    float: left;
 }
 
 @media screen and (min-width: 450px) {
+
     .offering_list {
         width: 33.333333%;
-        padding: 1em;
+        float: left;
+
     }
 }
 
 @media screen and (min-width: 600px) {
     .offering_list {
-        width: 25%;
-        padding: 1em;
+        margin-right: 20px;
+        float: left;
     }
 
 }
 
 @media screen and (min-width: 800px) {
+
+    .offering_container {
+
+    }
     .offering_list {
         width: 25%;
-        padding: 1em;
-        margin-left: auto;
-        margin-right: auto;
+
+
     }
 
 }
