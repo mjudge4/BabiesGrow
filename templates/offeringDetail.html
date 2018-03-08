@@ -41,6 +41,7 @@
         Images:
         {% for x in files %}
         <img src ="{{ x.image}}"/></br></h5>
+        <a href='{{ url_for('deleteFile', offering_id = offering.id, file_id=x.id) }}'>Remove Image</a>
 
         {% endfor %}
 

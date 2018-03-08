@@ -13,7 +13,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 
 DATA_BACKEND = 'cloudsql'
-CLOUDSQL_USER = 'arc'
+CLOUDSQL_USER = 'marc'
 CLOUDSQL_PASSWORD = 'password'
 CLOUDSQL_DATABASE = 'offerings'
 
@@ -37,11 +37,12 @@ class User(Base):
 class Offering(Base):
     __tablename__ = 'offering'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True )
     title = Column(String(300), nullable=False)
     date = Column(String(300), nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
+    files = relationship('File', passive_deletes=True)
 
     @property
     def serialize(self):
@@ -53,23 +54,7 @@ class Offering(Base):
 
         }
 
-class File(Base):
-    __tablename__ = 'file'
-    id = Column(Integer, primary_key=True)
-    image = Column(String(250))
-    offering_id = Column(Integer, ForeignKey('offering.id'))
-    offering = relationship(Offering)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
 
-    @property
-    def serialize(self):
-        # Return objects in serializable form
-        return {
-            'id': self.id,
-            'image': self.image,
-
-        }
 
 class Tag(Base):
     __tablename__ = 'tag'
@@ -105,6 +90,27 @@ class Comment(Base):
         return {
             'id': self.id,
             'body': self.body,
+
+        }
+
+class File(Base):
+    __tablename__ = 'file'
+
+    id = Column(Integer, primary_key=True)
+    image = Column(String(250))
+    offering_id = Column(Integer, ForeignKey('offering.id', ondelete='CASCADE'))
+    offering = relationship(Offering)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+
+
+
+    @property
+    def serialize(self):
+        # Return objects in serializable form
+        return {
+            'id': self.id,
+            'image': self.image,
 
         }
 

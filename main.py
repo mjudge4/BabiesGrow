@@ -56,8 +56,7 @@ def _get_storage_client():
 
 
 def _check_extension(filename, allowed_extensions):
-    if ('.' not in filename or
-            filename.split('.').pop() not in allowed_extensions):
+    if '.' not in filename or filename.split('.').pop() not in allowed_extensions:
         raise BadRequest(
             "{0} has an invalid name or extension".format(filename))
 
@@ -147,31 +146,10 @@ def load_file(offering_id):
         newFile = File(image=image_url, offering_id=offering_id, user_id=login_session['user_id'])
         session.add(newFile)
         session.commit()
-        return redirect(url_for('offeringDetail', offering_id=offering_id))
+        return redirect(url_for('uploaded_file', offering_id=offering_id, file_id=newFile.id))
     else:
         return render_template('uploads.html')
 
-
-# [START def_detect_labels_uri]
-def detect_labels_uri(offering_id, uri):
-    """Detects labels in the file located in Google Cloud Storage or on the
-    Web."""
-    client = vision.ImageAnnotatorClient()
-    image = types.Image()
-    image.source.image_uri = uri
-
-    response = client.label_detection(image=image)
-    tags = response.label_annotations
-    offering = session.query(Offering).filter_by(id=offering_id).one()
-
-
-    for tag in tags:
-        if tag.description != Tag.tag_name:
-            newTag = Tag(tag_name=tag.description, offering_id=offering.id)
-            session.add(newTag)
-            session.commit()
-    return redirect(url_for('offeringDetail', offering_id=offering_id))
-# [END def_detect_labels_uri]
 
 
 @app.route('/offerings/new/<int:offering_id>/upload/<int:file_id>')
@@ -518,7 +496,7 @@ def newTag(offering_id):
     else:
         return render_template('newtag.html')
 
-@app.route('/offerings/<int:offering_id>/<int:tag_id>/delete/', methods=['GET', 'POST'])
+@app.route('/offerings/<int:offering_id>/tag/<int:tag_id>/delete/', methods=['GET', 'POST'])
 def deleteTag(offering_id, tag_id):
     if 'username' not in login_session:
         return redirect('/login')
@@ -581,7 +559,21 @@ def deleteOffering(offering_id):
         return render_template('deleteoffering.html', offering=offeringToDelete)
 
 
-
+@app.route('/offerings/<int:offering_id>/file/<int:file_id>/delete/', methods=['GET', 'POST'])
+def deleteFile(offering_id, file_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    offering = session.query(Offering).filter_by(id=offering_id).one()
+    fileToDelete = session.query(File).filter_by(id=file_id).one()
+    if offering.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to delete this offering.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        session.delete(fileToDelete)
+        session.commit()
+        flash("Image deleted")
+        return redirect(url_for('offering', offering_id=offering_id))
+    else:
+        return render_template('deletefile.html', file=fileToDelete, offering_id=offering_id)
 
 
 if __name__ == '__main__':
