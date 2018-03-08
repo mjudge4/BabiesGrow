@@ -32,6 +32,8 @@ ul {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
   min-height: 56px;
   transition: min-height 0.3s;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .header__inner {
@@ -107,6 +109,7 @@ main .detail {
     width: 100%;
     padding: 1em;
     float: left;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 }
 
 @media screen and (min-width: 450px) {

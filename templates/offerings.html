@@ -41,9 +41,12 @@
         <a href="{{url_for('offeringDetail', offering_id = i.id)}}">
             <h3>{{i.title}}</h3></br></a>
         <p>{{i.date}}</p>
-        {% if i.id == files.offering_id %}
-        <img src ="{{ files.image}}"/>
-        {% endif %}
+        {% for file in files %}
+            {% if i.id == file.offering_id %}
+                <img src ="{{file.image}}">
+            {% endif %}
+        {% endfor %}
+
         </div>
     {% endfor %}
 
