@@ -163,22 +163,22 @@ def uploaded_file(offering_id, file_id):
     # [START migration_import]
 
     client = vision.ImageAnnotatorClient()
-    image_url = file.image
+    image = types.Image()
+    image.source.image_uri = file.image
 
-    response = client.label_detection(image_url=image_url)
+    response = client.label_detection(image=image)
     tags = response.label_annotations
 
     for tag in tags:
-        if tag.description != Tag.tag_name:
-            newTag = Tag(tag_name=tag.description, offering_id=offering.id)
-            session.add(newTag)
-            session.commit()
+        newTag = Tag(tag_name=str(tag.description), offering_id=offering.id)
+        session.add(newTag)
+        session.commit()
 
     # [END vision_quickstart]
-    return render_template('uploadedfile.html', tags=tags, offering_id=offering_id)
+    return render_template('uploadedfile.html', tags=tags, file_id=file_id, offering_id=offering_id)
 
 
-@app.route('/uploads/<filename>')
+@app.route('/offerings/new/<int:offering_id>/upload/<int:file_id>/tags')
 def uploadedfile(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)

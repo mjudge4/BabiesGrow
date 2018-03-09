@@ -35,11 +35,9 @@
         <img src ="{{ x.image}}"/></br></h5>
         {% endfor %}
 
-        <button class = "button">
-        {% for i in tags %}
-            <h5><span>{{i.tag_name}}</span></br></h5>
+        {% for tag in tags %}
+            {{ tag.tag_name}}</br>
         {% endfor %}
-        </button>
 
 
 	</div>
