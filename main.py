@@ -47,6 +47,11 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
+@app.route('/sw.js', methods=['GET'])
+def sw():
+    return app.send_static_file('sw.js')
+
+
 def _get_storage_client():
     return storage.Client(
         project='pycharm-194111')
