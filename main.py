@@ -26,7 +26,7 @@ MAX_CONTENT_LENGTH = 8 * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 DATA_BACKEND = 'cloudsql'
-CLOUDSQL_USER = 'arc'
+CLOUDSQL_USER = 'marc'
 CLOUDSQL_PASSWORD = 'password'
 CLOUDSQL_DATABASE = 'offerings'
 
@@ -46,7 +46,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-
+#https://stackoverflow.com/questions/46381128/building-progressive-web-apps-using-python-flask
 @app.route('/sw.js', methods=['GET'])
 def sw():
     return app.send_static_file('sw.js')
